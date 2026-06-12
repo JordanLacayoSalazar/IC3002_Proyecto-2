@@ -1,0 +1,92 @@
+.subpanel-visualizacion {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    background: #111720;
+    border: transparent;
+    border-radius: 28px;
+    padding: 16px;
+}
+
+.contenedor-visualizacion {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.seccion-objetos-graficas {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.grafico-mochila {
+    display: grid;
+    gap: 18px;
+}
+
+.icono-mochila {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    height: 120px;
+    border-radius: 24px;
+    background: rgba(35, 46, 64, 0.9);
+    color: var(--texto-color-primario);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    overflow: hidden;
+    padding: 0 140px 0 28px;
+}
+
+.icono-mochila span {
+    position: relative;
+    z-index: 1;
+}
+
+.icono-mochila img {
+    position: absolute;
+    right: 24px;
+    top: 50%;
+    width: 88px;
+    height: 88px;
+    object-fit: contain;
+    opacity: 0.5;
+    transform: translateY(-50%);
+}
+
+.objetos-graficos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: flex-end;
+    min-height: 180px;
+}
+
+.figura-objeto {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 4px;
+    padding: 12px 10px;
+    border-radius: 18px;
+    background: rgba(119, 160, 74, 0.15);
+    border: 1px solid rgba(119, 160, 74, 0.25);
+    color: var(--texto-color-primario);
+    font-size: 0.78rem;
+    text-align: center;
+    overflow: hidden;
+}
+
+.figura-objeto span {
+    font-weight: 700;
+}
+
+.figura-objeto small {
+    max-width: 100%;
+    font-size: 0.68rem;
+    line-height: 1.18;
+    overflow-wrap: anywhere;
+}

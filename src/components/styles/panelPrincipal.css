@@ -1,0 +1,50 @@
+.titulo-panel {
+    color: var(--texto-color-primario);
+    font-family: var(--fuentes-titulo);
+    font-weight: 900;
+    font-size: 1.5rem;
+}
+
+.descripcion-panel {
+    color: var(--texto-color-secundario);
+    font-size: 0.95rem;
+}
+
+.panel-principal {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    background: #111720;
+    border: transparent;
+    border-radius: 28px;
+    padding: 28px;
+}
+
+.botones-seccion {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.boton-subpanel {
+    padding: 12px 18px;
+    border-radius: 999px;
+    background: var(--acento-color-secundario);
+    color: var(--texto-color-primario);
+    border: transparent;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.boton-subpanel.activo,
+.boton-subpanel:hover {
+    background: var(--acento-color-primario);
+}
+
+.contenido-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}

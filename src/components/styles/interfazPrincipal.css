@@ -1,0 +1,46 @@
+.interfaz-principal {
+    position: relative;
+    padding: 24px 40px;
+    padding-top: 80px;
+    padding-right: 560px;
+    min-height: 100svh;
+    background: var(--fondo-principal);
+}
+
+.boton-regresar {
+    position: fixed;
+    top: 24px;
+    left: 24px;
+    padding: 12px 18px;
+    border-radius: 999px;
+    background: #d7d700;
+    color: black;
+    border: transparent;
+    z-index: 100;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.boton-regresar:hover {
+    background: #a8a800;
+}
+
+.interfaz-principal .principal-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.panel-izquierdo {
+    max-width: 760px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+@media (max-width: 900px) {
+    .principal-grid {
+        grid-template-columns: 1fr;
+    }
+}
