@@ -1,116 +1,49 @@
-import { useState } from 'react'
-import './App.css'
+import { useState } from "react"
+import { AnimatePresence, motion } from "framer-motion"
+import "./App.css"
+import InterfazBienvenida from "./components/interfazBienvenida"
+import InterfazPrincipal from "./components/interfazPrincipal"
 
+// Punto de entrada del componente App que gestiona el estado de inicio y las transiciones de vista.
 function App() {
-  const [count, setCount] = useState(0)
+    const [iniciado, setIniciado] = useState(false)
 
-  return (
-    <>
-      <section id="center">
-        <div className="hero">
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    //Cambia el estado para mostrar la interfaz principal.
+    function iniciarApp() { setIniciado(true) }
 
-      <div className="ticks"></div>
+    //Cambia el estado para volver a la interfaz de bienvenida.
+    function volverABienvenida() { setIniciado(false) }
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
+    return (
+        <div className={`contenedor-app ${iniciado ? "contenedor-app--principal" : "contenedor-app--inicio"}`}>
+            <AnimatePresence mode="popLayout">
+                {!iniciado && (
+                    <motion.div
+                        key="bienvenida"
+                        className="vista-transicion"
+                        initial={{ opacity: 0, x: 30 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: 30 }}
+                        transition={{ duration: 0.32, ease: "easeInOut" }}
+                    >
+                        <InterfazBienvenida onIniciar={iniciarApp} />
+                    </motion.div>
+                )}
+                {iniciado && (
+                    <motion.div
+                        key="principal"
+                        className="vista-transicion"
+                        initial={{ opacity: 0, x: -30 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -30 }}
+                        transition={{ duration: 0.32, ease: "easeInOut" }}
+                    >
+                        <InterfazPrincipal onVolver={volverABienvenida} />
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+    )
 }
 
 export default App

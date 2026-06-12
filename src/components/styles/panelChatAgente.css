@@ -1,0 +1,83 @@
+.panel-chat {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 520px;
+    height: 100svh;
+    display: flex;
+    flex-direction: column;
+    background: var(--fondo-chat);
+    padding: 24px;
+    gap: 14px;
+    padding-right: 8px;
+}
+
+.contenedor-chat {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    border: transparent;
+    border-radius: 26px;
+    padding: 20px;
+    background: rgb(21, 29, 44);
+    flex: 1;
+    overflow-y: auto;
+}
+
+.burbuja-chat {
+    max-width: 90%;
+    padding: 18px 20px;
+    border-radius: 22px;
+    line-height: 1.65;
+    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.34);
+}
+
+.burbuja-chat.bot {
+    background: rgba(55, 80, 0, 0.95);
+    color: var(--texto-color-primario);
+    align-self: flex-start;
+}
+
+.burbuja-chat.usuario {
+    background: rgba(33, 48, 0, 0.95);
+    color: var(--texto-color-primario);
+    align-self: flex-end;
+}
+
+.area-mensaje {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    align-items: center;
+}
+
+.entrada-mensaje {
+    width: 100%;
+    border: transparent;
+    border-radius: 18px;
+    padding: 14px 18px;
+    background: rgb(31, 41, 58);
+    color: var(--texto-color-primario);
+}
+
+.entrada-mensaje::placeholder {
+    color: rgba(181, 196, 162, 0.7);
+}
+
+.boton-enviar {
+    padding: 14px 24px;
+    border-radius: 999px;
+    background: var(--acento-color-primario);
+    color: #fff;
+    font-weight: 700;
+}
+
+.boton-enviar:hover {
+    background: var(--acento-color-secundario);
+}
+
+.acciones-chat {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
