@@ -1,0 +1,131 @@
+.subpanel-objetos {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding: 16px;
+}
+
+.campo-formulario {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.campo-formulario label,
+.campo-formulario .subheading,
+.etiqueta-campo {
+    color: var(--texto-color-primario);
+    font-weight: 600;
+}
+
+.campo-numerico {
+    display: grid;
+    grid-template-columns: 42px minmax(0, 1fr) 42px;
+    gap: 6px;
+    align-items: center;
+    margin-top: 8px;
+}
+
+.campo-numerico input[type="number"]::-webkit-outer-spin-button,
+.campo-numerico input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+}
+
+.boton-incremento {
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    background: var(--acento-color-secundario);
+    color: var(--texto-color-primario);
+    border: transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1rem;
+    line-height: 1;
+}
+
+.boton-incremento:hover:not(:disabled) {
+    background: var(--acento-color-primario);
+}
+
+input[type="number"],
+input[type="range"] {
+    width: 100%;
+    border: transparent;
+    border-radius: 14px;
+    padding: 12px 14px;
+    background: rgba(24, 33, 48, 0.95);
+    color: var(--texto-color-primario);
+}
+
+.campo-numerico input[type="number"] {
+    min-width: 0;
+}
+
+.boton-generar-aleatorio {
+    margin-top: 8px;
+    margin-bottom: 25px;
+    padding: 12px 18px;
+    min-width: 160px;
+    background: var(--acento-color-secundario);
+    color: var(--texto-color-primario);
+    border: transparent;
+    border-radius: 999px;
+    font-weight: 600;
+}
+
+.boton-generar-aleatorio:hover {
+    background: var(--acento-color-primario);
+}
+
+.lista-objetos {
+    margin-top: 8px;
+    padding-top: 14px;
+    border-top: 1px dashed rgba(120, 140, 50, 0.18);
+}
+
+.fila-encabezado {
+    display: grid;
+    grid-template-columns: 36px 1fr 1fr;
+    gap: 10px;
+    color: rgba(193, 211, 161, 0.85);
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.fila-objeto {
+    display: grid;
+    grid-template-columns: 36px 1fr 1fr;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 10px;
+    padding: 12px 12px;
+    border-radius: 16px;
+    background: rgba(24, 34, 51, 0.92);
+    border: transparent;
+}
+
+.id-objeto {
+    color: var(--texto-color-primario);
+    font-weight: 700;
+}
+
+.campo-objeto {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    color: var(--texto-color-secundario);
+    font-size: 0.95rem;
+}
+
+.campo-objeto input {
+    width: 100%;
+    border-radius: 14px;
+    border: transparent;
+    padding: 10px 12px;
+    background: rgba(21, 30, 44, 0.98);
+    color: var(--texto-color-primario);
+}

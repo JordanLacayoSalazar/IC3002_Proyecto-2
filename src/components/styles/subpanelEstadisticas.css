@@ -1,0 +1,22 @@
+.subpanel-estadisticas {
+    display: grid;
+    gap: 18px;
+    padding: 16px;
+}
+
+.apartado-estadistica {
+    background: rgba(21, 30, 44, 0.95);
+    border-radius: 22px;
+    padding: 22px;
+}
+
+.texto-estadistica {
+    min-height: 140px;
+    margin-top: 12px;
+    border-radius: 20px;
+    background: rgba(35, 46, 64, 0.7);
+    display: grid;
+    place-items: center;
+    color: rgba(196, 213, 142, 0.85);
+    font-size: 0.95rem;
+}
