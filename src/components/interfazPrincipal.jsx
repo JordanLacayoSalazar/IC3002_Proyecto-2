@@ -114,12 +114,13 @@ function limitarCantidadObjetos(cantidad) {
 
 /*
  * Maneja la interfaz principal del sistema, gestionando los estados de los objetos y configuración.
- * Recibe la función onVolver para regresar a la interfaz de bienvenida y renderiza los paneles de control y el chat.
+ * Recibe la función onVolver para regresar a la interfaz de bienvenida, la API key y renderiza los paneles de control y el chat.
  */
-export default function InterfazPrincipal({ onVolver }) {
+export default function InterfazPrincipal({ onVolver, apiKey }) {
     const [algoritmo, setAlgoritmo] = useState(ALGORITMO_POR_DEFECTO)
     const [cantidad, setCantidad] = useState(CANTIDAD_DEFAULT)
     const [capacidad, setCapacidad] = useState(CAPACIDAD_DEFAULT)
+    const [mochila, setMochila] = useState({valor: 0, peso: 0, contenido: []})
     const [objetos, setObjetos] = useState(function () {
         return crearObjetosIniciales(CANTIDAD_DEFAULT)
     })
@@ -180,7 +181,14 @@ export default function InterfazPrincipal({ onVolver }) {
                     />
                 </div>
 
-                <PanelChatAgente />
+                <PanelChatAgente
+                    apiKey={apiKey}
+                    objetos={objetos}
+                    capacidad={capacidad}
+                    tiempoLimite={tiempoLimite}
+                    mochila={mochila}
+                    setMochila={setMochila}
+                />
             </div>
         </div>
     )

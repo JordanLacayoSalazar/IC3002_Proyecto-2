@@ -9,6 +9,15 @@ import "./styles/interfazBienvenida.css"
  */
 export default function InterfazBienvenida({ onIniciar }) {
     const [mostrarApiKey, setMostrarApiKey] = useState(false)
+    const [apiKey, setApiKey] = useState("")
+
+    function manejarClic() {
+        if (apiKey.trim() === "") {
+            alert("Por favor ingrese su API Key")
+            return
+        }
+        onIniciar(apiKey)
+    }
 
     return (
         <section className="interfaz-bienvenida">
@@ -33,6 +42,8 @@ export default function InterfazBienvenida({ onIniciar }) {
                             type={mostrarApiKey ? "text" : "password"}
                             placeholder="Ingrese su API Key..."
                             autoComplete="off"
+                            value={apiKey}
+                            onChange={(e) => setApiKey(e.target.value)}
                         />
                         <button
                             type="button"
@@ -44,7 +55,7 @@ export default function InterfazBienvenida({ onIniciar }) {
                         </button>
                     </div>
                 </label>
-                <button className="boton-comenzar" onClick={onIniciar}>
+                <button className="boton-comenzar" onClick={manejarClic}>
                     <Play size={25} fill="currentColor" style={{ marginRight: "10px"}} />
                     Comenzar
                 </button>

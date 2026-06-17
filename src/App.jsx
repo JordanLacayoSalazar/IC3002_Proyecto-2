@@ -7,9 +7,13 @@ import InterfazPrincipal from "./components/interfazPrincipal"
 // Punto de entrada del componente App que gestiona el estado de inicio y las transiciones de vista.
 function App() {
     const [iniciado, setIniciado] = useState(false)
+    const [apiKey, setApiKey] = useState("")
 
     //Cambia el estado para mostrar la interfaz principal.
-    function iniciarApp() { setIniciado(true) }
+    function iniciarApp(key) { 
+        setApiKey(key)
+        setIniciado(true) 
+    }
 
     //Cambia el estado para volver a la interfaz de bienvenida.
     function volverABienvenida() { setIniciado(false) }
@@ -38,7 +42,7 @@ function App() {
                         exit={{ opacity: 0, x: -30 }}
                         transition={{ duration: 0.32, ease: "easeInOut" }}
                     >
-                        <InterfazPrincipal onVolver={volverABienvenida} />
+                        <InterfazPrincipal onVolver={volverABienvenida} apiKey={apiKey} />
                     </motion.div>
                 )}
             </AnimatePresence>
