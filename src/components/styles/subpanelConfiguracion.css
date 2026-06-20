@@ -105,9 +105,17 @@ select option {
 }
 
 .boton-prioridad:hover {
-    background: var(--acento-color-secundario);
+    background: #314800;
+}
+
+.boton-prioridad.activo:hover {
+    background: #576e09;
 }
 
 .campo-deshabilitado {
     opacity: 0.68;
+}
+
+.icono-apartado {
+    margin-right: 6px;
 }

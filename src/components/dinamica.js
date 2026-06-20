@@ -1,108 +1,111 @@
-import '../types.js'
+import { eliminarObjetosNoValidos, procesarObjetosPesoCero } from "../utils.js"
 
+/*
+ * Resuelve el problema mediante programación dinámica, utilizando una tabla
+ * para almacenar resultados parciales y reconstruir la solución óptima final.
+ */
 export function mochilaDinamica(listaObjetos, capacidad, tiempoAceptable){
-    listaObjetos = eliminarObjetosNoValidos(listaObjetos, capacidad)
     let resultado = {
         valor: 0,
         peso: 0,
-        objetos: []
+        objetos: [],
+        operaciones: 0,
+        tiempoMs: 0,
+        tiemposFases: {
+            tiempoFiltradoObjetos: 0,
+            tiempoCreacionTabla: 0,
+            tiempoLlenadoTabla: 0,
+            tiempoReconstruccion: 0
+        }
     }
     const inicio = performance.now()
-    resultado = dinamicaLoop(listaObjetos, capacidad, [1], { valor: 0, peso: 0, objetos: [] }, resultado, tiempoAceptable*1000, inicio)
+    
+    if (listaObjetos.length > 0 && capacidad > 0) {
+        const inicioFiltrado = performance.now()
+        listaObjetos = eliminarObjetosNoValidos(listaObjetos, capacidad)
+        listaObjetos = procesarObjetosPesoCero(listaObjetos, resultado)
+        resultado.tiemposFases.tiempoFiltradoObjetos = performance.now() - inicioFiltrado
+
+        const temporizador = tiempoAceptable * 1000
+        
+        // Se usa el enfoque Bottom-up (tabulación)
+        const inicioCreacion = performance.now()
+        const tabla = crearTablaDinamica(listaObjetos.length, capacidad)
+        resultado.tiemposFases.tiempoCreacionTabla = performance.now() - inicioCreacion
+
+        const inicioLlenado = performance.now()
+        const datosTabla = llenarTablaDinamica(tabla, listaObjetos, capacidad, temporizador, inicio)
+        resultado.operaciones += datosTabla.operaciones
+        resultado.tiemposFases.tiempoLlenadoTabla = performance.now() - inicioLlenado
+
+        // Identificar los objetos forman parte de la solución óptima
+        const inicioReconstruccion = performance.now()
+        reconstruirSolucion(tabla, listaObjetos, datosTabla.numObjCompletados, capacidad, resultado)
+        resultado.tiemposFases.tiempoReconstruccion = performance.now() - inicioReconstruccion
+    }
+
+    resultado.tiempoMs = performance.now() - inicio
     return resultado
 }
 
-function eliminarObjetosNoValidos(listaObjetos, capacidad) {
-    let nuevaLista = []
-    for (let i = 0; i < listaObjetos.length; i++){
-        if (listaObjetos[i].valor == 0) continue
-        if (listaObjetos[i].peso > capacidad) continue
-        nuevaLista.push(listaObjetos[i])
+/*
+ * Inicialización de la tabla (matriz). Se llena de ceros.
+ * Cada celda tabla[i][w] almacenará el valor máximo alcanzable usando 
+ * los primeros "i" objetos con una capacidad límite "w".
+ */
+function crearTablaDinamica(numObjetos, capacidad) {
+    let tabla = []
+    for (let i = 0; i <= numObjetos; i++) {
+        tabla[i] = []
+        for (let w = 0; w <= capacidad; w++) {
+            tabla[i][w] = 0
+        }
     }
-    return nuevaLista
+    return tabla
 }
 
-function dinamicaLoop(listaObjetos, capacidad, listaIndice, mochilaActual, resultado, temporizador, inicio){
-    //Verifica si el tiempo aceptable ha sido alcanzado
-    if (temporizador <= performance.now() - inicio && temporizador > 0){
-        if (resultado.valor < mochilaActual.valor) {
-            resultado.valor = mochilaActual.valor
-            resultado.peso = mochilaActual.peso
-            resultado.objetos = mochilaActual.objetos.slice()
-        }
-        return resultado
-    }
-    //Verifica si se ha verificado todas las combinaciones posibles
-    let indiceActual = listaIndice.length - 1
-    if (indiceActual < 0) {
-        if (mochilaActual.valor > resultado.valor) {
-            resultado.valor = mochilaActual.valor
-            resultado.peso = mochilaActual.peso
-            resultado.objetos = mochilaActual.objetos.slice()
-        }
-        return resultado
-    }
+/*
+ * Ejecuta el algoritmo de la mochila llenando la tabla de valores máximos.
+ * Devuelve la cantidad de objetos procesados antes de que se agotara el tiempo.
+ */
+function llenarTablaDinamica(tabla, listaObjetos, capacidad, temporizador, inicio) {
+    let numObjCompletados = 0
+    let operaciones = 0
+    for (let i = 1; i <= listaObjetos.length; i++) {
+        if (temporizador <= performance.now() - inicio && temporizador > 0) break
 
-    //Si el objeto actual no esta en la mochila lo elimina del indice y verifica el anterior
-    if (listaIndice[indiceActual] == 0) {
-        listaIndice.splice(indiceActual, 1)
-        //si el indice esta vacio retorna el resultado final
-        if (indiceActual - 1 < 0) {
-            if (mochilaActual.valor > resultado.valor) {
-            resultado.valor = mochilaActual.valor
-            resultado.peso = mochilaActual.peso
-            resultado.objetos = mochilaActual.objetos.slice()
+        let objeto = listaObjetos[i - 1]
+        for (let w = 1; w <= capacidad; w++) {
+            operaciones++
+            if (objeto.peso <= w) {
+                // Se decide si conviene más incluir el objeto actual o mantener el valor anterior
+                let valorSinObjeto = tabla[i - 1][w]
+                let valorConObjeto = tabla[i - 1][w - objeto.peso] + objeto.valor
+                tabla[i][w] = Math.max(valorSinObjeto, valorConObjeto)
+            } else {
+                tabla[i][w] = tabla[i - 1][w]
+            }
         }
-            return resultado
-        }
-        //Si el objeto anterior esta en la mochila lo elimina y agrega el siguiente
-        if (listaIndice[indiceActual - 1] == 1) {
-            mochilaActual.valor -= listaObjetos[indiceActual - 1].valor
-            mochilaActual.peso -= listaObjetos[indiceActual - 1].peso
-            mochilaActual.objetos.splice(mochilaActual.objetos.length - 1, 1)
-            listaIndice[indiceActual - 1] = 0
-            listaIndice.push(1)
-        }
-        indiceActual = listaIndice.length - 1
+        numObjCompletados++
     }
+    return { numObjCompletados, operaciones }
+}
 
-    let ingresoValido = listaIndice[indiceActual] == 1 
-    const objetoActual = listaObjetos[indiceActual]
-    if (objetoActual.peso + mochilaActual.peso > capacidad && ingresoValido) {
-        if (mochilaActual.valor > resultado.valor) {
-            resultado.valor = mochilaActual.valor
-            resultado.peso = mochilaActual.peso
-            resultado.objetos = mochilaActual.objetos.slice()
-        }
-        listaIndice[indiceActual] = 0
-        if (indiceActual + 1 < listaObjetos.length) {
-            listaIndice.push(1)
+/*
+ * Recorre la tabla desde la última fila para determinar qué objetos fueron
+ * seleccionados basándose en los cambios de valor entre filas.
+ */
+function reconstruirSolucion(tabla, listaObjetos, numObjCompletados, capacidad, resultado) {
+    let capacidadRestante = capacidad
+    for (let i = numObjCompletados; i >= 1; i--) {
+        resultado.operaciones++
+        // Si el valor en la celda actual es distinto al de la fila de arriba, el objeto se incluyó
+        if (tabla[i][capacidadRestante] !== tabla[i - 1][capacidadRestante]) {
+            let objetoIncluido = listaObjetos[i - 1]
+            resultado.objetos.push(objetoIncluido)
+            resultado.valor += objetoIncluido.valor
+            resultado.peso += objetoIncluido.peso
+            capacidadRestante -= objetoIncluido.peso
         }
     }
-    if (ingresoValido){
-        mochilaActual.valor += objetoActual.valor
-        mochilaActual.peso += objetoActual.peso
-        mochilaActual.objetos.push(objetoActual)
-    }
-    if (indiceActual + 1 >= listaObjetos.length) {
-        if (mochilaActual.valor > resultado.valor) {
-            resultado.valor = mochilaActual.valor
-            resultado.peso = mochilaActual.peso
-            resultado.objetos = mochilaActual.objetos.slice()
-        }
-        if (indiceActual - 1 < 0) return resultado
-        mochilaActual.valor -= objetoActual.valor
-        mochilaActual.peso -= objetoActual.peso
-        mochilaActual.objetos.splice(mochilaActual.objetos.length - 1, 1)
-        listaIndice.splice(indiceActual, 1)
-        if (listaIndice[indiceActual - 1] == 1) {
-            mochilaActual.valor -= listaObjetos[indiceActual - 1].valor
-            mochilaActual.peso -= listaObjetos[indiceActual - 1].peso
-            mochilaActual.objetos.splice(mochilaActual.objetos.length - 1, 1)
-            listaIndice[indiceActual - 1] = 0
-            listaIndice.push(1)
-        }
-    } else if (ingresoValido) listaIndice.push(1)
-    resultado = dinamicaLoop(listaObjetos, capacidad, listaIndice, mochilaActual, resultado, temporizador, inicio)
-    return resultado
 }

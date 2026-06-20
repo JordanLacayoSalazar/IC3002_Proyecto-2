@@ -90,6 +90,18 @@
     box-shadow: 0 14px 28px rgba(0, 0, 0, 0.4);
 }
 
-.boton-comenzar:hover {
+.boton-comenzar:hover:not(:disabled) {
     background: var(--acento-color-primario);
+}
+
+.boton-comenzar:disabled {
+    background: rgba(119, 160, 74, 0.45);
+    color: rgba(245, 249, 220, 0.65);
+    box-shadow: none;
+    cursor: not-allowed;
+    opacity: 0.75;
+}
+
+.animacion-spin {
+    animation: spin 1s linear infinite;
 }

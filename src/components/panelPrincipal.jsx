@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import { useState } from "react"
 import { Cog, Box, ImagePlay, ChartNoAxesCombined } from "lucide-react"
 import SubPanelConfiguracion from "./subpanelConfiguracion.jsx"
 import SubPanelVisualizacion from "./subpanelVisualizacion.jsx"
@@ -12,7 +12,6 @@ import "./styles/panelPrincipal.css"
  */
 export default function PanelPrincipal({
     algoritmo,
-    setAlgoritmo,
     cantidad,
     setCantidad,
     capacidad,
@@ -23,7 +22,9 @@ export default function PanelPrincipal({
     setPrioridad,
     tiempoLimite,
     setTiempoLimite,
+    estadisticas,
     onGenerarAleatorio,
+    mochila,
 }) {
     const [seccionActiva, setSeccionActiva] = useState("configuracion")
 
@@ -35,28 +36,28 @@ export default function PanelPrincipal({
                     className={`boton-subpanel ${seccionActiva === "configuracion" ? "activo" : ""}`}
                     onClick={function () { setSeccionActiva("configuracion") }}
                 >
-                    <Cog size={20} style={{ marginRight: "5px"}} />
+                    <Cog size={20} className="icono-apartado" />
                     Configuración
                 </button>
                 <button
                     className={`boton-subpanel ${seccionActiva === "objetos" ? "activo" : ""}`}
                     onClick={function () { setSeccionActiva("objetos") }}
                 >
-                    <Box size={20} style={{ marginRight: "5px"}} />
+                    <Box size={20} className="icono-apartado" />
                     Mochila y objetos
                 </button>
                 <button
                     className={`boton-subpanel ${seccionActiva === "visualizacion" ? "activo" : ""}`}
                     onClick={function () { setSeccionActiva("visualizacion") }}
                 >
-                    <ImagePlay size={20} style={{ marginRight: "5px"}} />
+                    <ImagePlay size={20} className="icono-apartado" />
                     Visualización
                 </button>
                 <button
                     className={`boton-subpanel ${seccionActiva === "estadisticas" ? "activo" : ""}`}
                     onClick={function () { setSeccionActiva("estadisticas") }}
                 >
-                    <ChartNoAxesCombined size={20} style={{ marginRight: "5px"}} />
+                    <ChartNoAxesCombined size={20} className="icono-apartado" />
                     Estadísticas
                 </button>
             </div>
@@ -64,8 +65,6 @@ export default function PanelPrincipal({
             <div className="contenido-panel">
                 {seccionActiva === "configuracion" && (
                     <SubPanelConfiguracion
-                        algoritmo={algoritmo}
-                        setAlgoritmo={setAlgoritmo}
                         prioridad={prioridad}
                         setPrioridad={setPrioridad}
                         tiempoLimite={tiempoLimite}
@@ -86,11 +85,11 @@ export default function PanelPrincipal({
                 )}
 
                 {seccionActiva === "visualizacion" && (
-                    <SubPanelVisualizacion capacidad={capacidad} objetos={objetos} />
+                    <SubPanelVisualizacion capacidad={capacidad} objetos={objetos} mochila={mochila} />
                 )}
 
                 {seccionActiva === "estadisticas" && (
-                    <SubPanelEstadisticas />
+                    <SubPanelEstadisticas estadisticas={estadisticas} algoritmo={algoritmo} />
                 )}
             </div>
         </aside>

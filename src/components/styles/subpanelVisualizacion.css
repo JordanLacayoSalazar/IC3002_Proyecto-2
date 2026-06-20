@@ -25,27 +25,31 @@
     gap: 18px;
 }
 
-.icono-mochila {
+.contenedor-mochila {
     position: relative;
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    align-items: stretch;
     justify-content: flex-start;
-    height: 120px;
+    height: auto;
+    min-height: 180px;
     border-radius: 24px;
     background: rgba(35, 46, 64, 0.9);
     color: var(--texto-color-primario);
     font-weight: 700;
     letter-spacing: 0.02em;
-    overflow: hidden;
-    padding: 0 140px 0 28px;
+    overflow: visible;
+    padding: 24px;
+    gap: 16px;
+    border: 2px dashed rgba(119, 160, 74, 0.35);
 }
 
-.icono-mochila span {
+.contenedor-mochila span {
     position: relative;
     z-index: 1;
 }
 
-.icono-mochila img {
+.contenedor-mochila img {
     position: absolute;
     right: 24px;
     top: 50%;
@@ -53,7 +57,53 @@
     height: 88px;
     object-fit: contain;
     opacity: 0.5;
-    transform: translateY(-50%);
+    transform: translateY(-30%);
+}
+
+.mochila-cabecera {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    z-index: 1;
+}
+
+.mochila-cabecera-info {
+    font-weight: 400;
+    opacity: 0.85;
+}
+
+.seccion-objetos-dentro {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: flex-end;
+    min-height: 100px;
+    padding: 12px;
+    background: rgba(20, 28, 40, 0.5);
+    border-radius: 16px;
+    z-index: 1;
+    width: 100%;
+}
+
+.texto-vacio {
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 0.88rem;
+    width: 100%;
+    text-align: center;
+    padding: 20px 0;
+}
+
+.seccion-objetos-fuera {
+    margin-top: 12px;
+}
+
+.titulo-objetos-fuera {
+    margin-bottom: 12px;
+}
+
+.icono-apartado {
+    margin-right: 6px;
 }
 
 .objetos-graficos {
@@ -61,7 +111,11 @@
     flex-wrap: wrap;
     gap: 12px;
     align-items: flex-end;
-    min-height: 180px;
+    min-height: 120px;
+    background: rgba(20, 28, 40, 0.25);
+    border-radius: 16px;
+    padding: 16px;
+    z-index: 1;
 }
 
 .figura-objeto {
@@ -78,6 +132,16 @@
     font-size: 0.78rem;
     text-align: center;
     overflow: hidden;
+    height: 90px;
+    width: 90px;
+    box-sizing: border-box;
+}
+
+.figura-objeto-fraccionado {
+    background: rgba(245, 158, 11, 0.15);
+    border: 1px solid rgba(245, 158, 11, 0.35);
+    height: 125px;
+    width: 150px;
 }
 
 .figura-objeto span {
@@ -89,4 +153,5 @@
     font-size: 0.68rem;
     line-height: 1.18;
     overflow-wrap: anywhere;
+    font-weight: 400;
 }

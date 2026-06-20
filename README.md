@@ -11,3 +11,11 @@ Profesor: **Joss Rayn Pecou Johnson**
 Grupo: 60
 
 I Semestre 2026
+
+---
+
+**Enlace al repositorio de GitHub:**
+https://github.com/JordanLacayoSalazar/IC3002_Proyecto-2
+
+**Enlace de GitHub Pages de la aplicación:**
+https://JordanLacayoSalazar.github.io/IC3002_Proyecto-2/

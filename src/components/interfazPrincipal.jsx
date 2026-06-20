@@ -1,12 +1,11 @@
-import React, { useState } from "react"
+import { useState } from "react"
 import { Undo2 } from "lucide-react"
 import { motion } from "framer-motion"
 import "./styles/interfazPrincipal.css"
 import {
     TIEMPO_LIMITE_DEFAULT,
-    CANTIDAD_DEFAULT,
+    CANTIDAD_DEFAULT_OBJETOS,
     CAPACIDAD_DEFAULT,
-    ALGORITMO_POR_DEFECTO,
     CAPACIDAD_ALEATORIA_FACTOR_POR_OBJETO,
     CAPACIDAD_ALEATORIA_MINIMA,
     PESO_INICIAL_OBJETO,
@@ -82,26 +81,24 @@ function ajustarCantidadObjetos(cantidad, anterior) {
  * Recibe la lista previa, el índice, el atributo a cambiar y el nuevo valor, devolviendo una nueva lista actualizada.
  */
 function actualizarListaObjetos(prev, idx, atributo, valor) {
-    let copia = prev.slice();
-    let obj = copia[idx];
-    
-    let nValor;
-    let nPeso;
+    let copia = prev.slice()
+    let obj = copia[idx]
+    let nValor, nPeso
 
     if (atributo === "valor") {
-        nValor = Number(valor);
+        nValor = Number(valor)
     } else {
-        nValor = obj.valor;
+        nValor = obj.valor
     }
 
     if (atributo === "peso") {
-        nPeso = Number(valor);
+        nPeso = Number(valor)
     } else {
-        nPeso = obj.peso;
+        nPeso = obj.peso
     }
 
-    copia[idx] = new Objeto(obj.id, nValor, nPeso);
-    return copia;
+    copia[idx] = new Objeto(obj.id, nValor, nPeso)
+    return copia
 }
 
 /*
@@ -116,16 +113,23 @@ function limitarCantidadObjetos(cantidad) {
  * Maneja la interfaz principal del sistema, gestionando los estados de los objetos y configuración.
  * Recibe la función onVolver para regresar a la interfaz de bienvenida, la API key y renderiza los paneles de control y el chat.
  */
-export default function InterfazPrincipal({ onVolver, apiKey }) {
-    const [algoritmo, setAlgoritmo] = useState(ALGORITMO_POR_DEFECTO)
-    const [cantidad, setCantidad] = useState(CANTIDAD_DEFAULT)
+export default function InterfazPrincipal({ onVolver, genAI }) {
+    const [algoritmo, setAlgoritmo] = useState("ninguno")
+    const [cantidad, setCantidad] = useState(CANTIDAD_DEFAULT_OBJETOS)
     const [capacidad, setCapacidad] = useState(CAPACIDAD_DEFAULT)
-    const [mochila, setMochila] = useState({valor: 0, peso: 0, contenido: []})
+    const [mochila, setMochila] = useState(null)
     const [objetos, setObjetos] = useState(function () {
-        return crearObjetosIniciales(CANTIDAD_DEFAULT)
+        return crearObjetosIniciales(CANTIDAD_DEFAULT_OBJETOS)
     })
     const [prioridad, setPrioridad] = useState(PRIORIDAD_EXACTITUD)
     const [tiempoLimite, setTiempoLimite] = useState(TIEMPO_LIMITE_DEFAULT)
+    const [estadisticas, setEstadisticas] = useState({
+        tiempoEstimadoMs: 0,
+        tiempoRealMs: 0,
+        operacionesEstimadas: 0,
+        operacionesReales: 0,
+        objetosTotales: 0,
+    })
 
     //Actualiza el estado de la cantidad de objetos y ajusta la lista proporcionalmente.
     function manejarCambioCantidad(valor) {
@@ -166,7 +170,6 @@ export default function InterfazPrincipal({ onVolver, apiKey }) {
                 <div className="panel-izquierdo">
                     <PanelPrincipal
                         algoritmo={algoritmo}
-                        setAlgoritmo={setAlgoritmo}
                         cantidad={cantidad}
                         setCantidad={manejarCambioCantidad}
                         capacidad={capacidad}
@@ -177,17 +180,21 @@ export default function InterfazPrincipal({ onVolver, apiKey }) {
                         setPrioridad={setPrioridad}
                         tiempoLimite={tiempoLimite}
                         setTiempoLimite={setTiempoLimite}
+                        estadisticas={estadisticas}
                         onGenerarAleatorio={generarAleatorio}
+                        mochila={mochila}
                     />
                 </div>
 
                 <PanelChatAgente
-                    apiKey={apiKey}
+                    genAI={genAI}
                     objetos={objetos}
                     capacidad={capacidad}
+                    prioridad={prioridad}
                     tiempoLimite={tiempoLimite}
-                    mochila={mochila}
                     setMochila={setMochila}
+                    setAlgoritmo={setAlgoritmo}
+                    setEstadisticas={setEstadisticas}
                 />
             </div>
         </div>

@@ -1,5 +1,7 @@
-import React, { useState } from "react"
-import { Play, Eye, EyeOff } from "lucide-react"
+import { useState } from "react"
+import { Play, Eye, EyeOff, Loader2 } from "lucide-react"
+import { GoogleGenerativeAI } from "@google/generative-ai"
+import { MODELO_GEMINI_IA } from "../constants.js"
 import "../App.css"
 import "./styles/interfazBienvenida.css"
 
@@ -10,13 +12,68 @@ import "./styles/interfazBienvenida.css"
 export default function InterfazBienvenida({ onIniciar }) {
     const [mostrarApiKey, setMostrarApiKey] = useState(false)
     const [apiKey, setApiKey] = useState("")
+    const [validandoApiKey, setValidandoAPIKey] = useState(false)
 
-    function manejarClic() {
+    // Valida la API Key ingresada y abre la interfaz principal cuando es correcta.
+    async function manejarClic() {
+        if (validandoApiKey) return
+
         if (apiKey.trim() === "") {
-            alert("Por favor ingrese su API Key")
+            alert("Por favor, ingrese su API Key para continuar.")
             return
         }
-        onIniciar(apiKey)
+
+        setValidandoAPIKey(true)
+        try {
+            // Crear la instancia de IA
+            const instanciaIA = new GoogleGenerativeAI(apiKey)
+            const modeloPrueba = instanciaIA.getGenerativeModel({
+                model: MODELO_GEMINI_IA 
+            })
+            
+            // Validación de la API Key
+            const resultado = await modeloPrueba.generateContent({
+                contents: [
+                    {
+                        role: "user",
+                        parts: [
+                            { text: "ok" }
+                        ]
+                    }
+                ]
+            })
+
+            const respuesta = await resultado.response
+            const texto = respuesta.text()
+
+            // Si no responde texto válido, hay un error
+            if (!texto) {
+                alert("Error: El modelo no devolvió una respuesta válida al verificar la API Key. Por favor, intente de nuevo.")
+                return
+            }
+
+            // API Key válida
+            onIniciar(instanciaIA)
+        } catch (error) {
+            if (error.message.includes("429")) {
+                alert("Error: Se ha alcanzado el límite de solicitudes de la API.")
+            } 
+            if (error.message.includes("503")) {
+                alert("Error: El modelo de Google Gemini está experimentando una alta demanda. Intente de nuevo en unos minutos.")
+            }
+            else {
+                alert("Error: La API Key proporcionada no es válida o no tiene acceso al servicio de Gemini. Por favor, intente de nuevo.")
+            }
+        } finally {
+            setValidandoAPIKey(false)
+        }
+    }
+
+    let iconoBoton
+    if (validandoApiKey) {
+        iconoBoton = <Loader2 size={25} className="animacion-spin" style={{ marginRight: "10px" }} />
+    } else {
+        iconoBoton = <Play size={25} fill="currentColor" style={{ marginRight: "10px" }} />
     }
 
     return (
@@ -55,9 +112,14 @@ export default function InterfazBienvenida({ onIniciar }) {
                         </button>
                     </div>
                 </label>
-                <button className="boton-comenzar" onClick={manejarClic}>
-                    <Play size={25} fill="currentColor" style={{ marginRight: "10px"}} />
-                    Comenzar
+                <button 
+                    className="boton-comenzar" 
+                    onClick={manejarClic}
+                    disabled={validandoApiKey}
+                    aria-busy={validandoApiKey}
+                >
+                    {iconoBoton}
+                    {validandoApiKey ? "Validando API Key..." : "Comenzar"}
                 </button>
             </div>
         </section>

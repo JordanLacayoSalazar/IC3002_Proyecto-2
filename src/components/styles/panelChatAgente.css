@@ -44,6 +44,19 @@
     align-self: flex-end;
 }
 
+.burbuja-chat.status {
+    background: #ffffff0f;
+    border: 1px solid rgba(196, 213, 142, 0.4);
+    color: var(--texto-color-primario);
+    align-self: flex-start;
+    font-style: italic;
+    font-size: 0.9rem;
+}
+
+.animacion-spin {
+    animation: spin 1s linear infinite;
+}
+
 .area-mensaje {
     display: grid;
     grid-template-columns: 1fr auto;
@@ -80,4 +93,19 @@
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
+}
+
+.boton-enviar:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #4b5563;
+}
+
+.entrada-mensaje:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.icono-apartado {
+    margin-right: 6px;
 }

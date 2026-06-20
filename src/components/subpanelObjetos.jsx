@@ -1,11 +1,10 @@
-import React from "react"
 import { Lightbulb, Dices } from "lucide-react"
 import { motion } from "framer-motion"
 import {
     CAPACIDAD_MINIMA,
     CANTIDAD_MAXIMA_OBJETOS,
     CANTIDAD_MINIMA_OBJETOS,
-    PASO_NUMERICO,
+    PASO_ENTERO_NUMERICO,
     PESO_OBJETO_MINIMO,
     VALOR_OBJETO_MINIMO,
 } from "../constants.js"
@@ -30,19 +29,19 @@ export default function SubPanelObjetos({
     function renderizarObjeto(it, idx) {
         // Reduce el peso del objeto actual.
         function bajarPeso() {
-            onObjetoChange(idx, "peso", Math.max(PESO_OBJETO_MINIMO, it.peso - PASO_NUMERICO))
+            onObjetoChange(idx, "peso", Math.max(PESO_OBJETO_MINIMO, it.peso - PASO_ENTERO_NUMERICO))
         }
         // Aumenta el peso del objeto actual.
         function subirPeso() {
-            onObjetoChange(idx, "peso", it.peso + PASO_NUMERICO)
+            onObjetoChange(idx, "peso", it.peso + PASO_ENTERO_NUMERICO)
         }
         // Reduce el valor del objeto actual.
         function bajarValor() {
-            onObjetoChange(idx, "valor", Math.max(VALOR_OBJETO_MINIMO, it.valor - PASO_NUMERICO))
+            onObjetoChange(idx, "valor", Math.max(VALOR_OBJETO_MINIMO, it.valor - PASO_ENTERO_NUMERICO))
         }
         // Aumenta el valor del objeto actual.
         function subirValor() {
-            onObjetoChange(idx, "valor", it.valor + PASO_NUMERICO)
+            onObjetoChange(idx, "valor", it.valor + PASO_ENTERO_NUMERICO)
         }
 
         return (
@@ -76,8 +75,9 @@ export default function SubPanelObjetos({
             <div className="titulo-panel">Mochila y objetos</div>
             <div className="descripcion-panel">
                 <Lightbulb size={18} style={{ marginRight: 6 }} />
-                Ajuste la capacidad de la mochila y la cantidad de objetos. Modifique 
-                manualmente su peso y valor, o genérelos aleatoriamente.
+                Ajuste la cantidad de objetos. Modifique 
+                manualmente la capacidad de la mochila, y 
+                los pesos y valores de los objetos, o genérelos aleatoriamente.
             </div>
 
             <div className="campo-formulario">
@@ -110,7 +110,6 @@ export default function SubPanelObjetos({
                         valor={capacidad}
                         onChange={setCapacidad}
                         min={CAPACIDAD_MINIMA}
-                        paso={PASO_NUMERICO}
                     />
                 </div>
 

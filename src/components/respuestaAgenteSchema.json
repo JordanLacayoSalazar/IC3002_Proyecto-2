@@ -1,0 +1,33 @@
+{
+    "type": "object",
+    "properties": {
+        "algoritmoSeleccionado": {
+            "type": "string",
+            "description": "Algoritmo elegido por el agente. Puede ser 'invalido' si la consulta no es sobre resolver el problema de la mochila, o 'ninguno' si N = 0 o W = 0.",
+            "enum": ["backtracking", "dinamica", "greedy", "invalido", "ninguno"]
+        },
+        "tiempoEstimadoMs": {
+            "type": "number",
+            "description": "Tiempo de ejecución estimado por la IA, expresado en milisegundos."
+        },
+        "operacionesEstimadas": {
+            "type": "number",
+            "description": "Cantidad estimada de operaciones."
+        },
+        "complejidadTemporal": {
+            "type": "string",
+            "description": "Complejidad temporal del algoritmo seleccionado."
+        },
+        "justificacion": {
+            "type": "string",
+            "description": "Explicación breve y analítica de la decisión."
+        }
+    },
+    "required": [
+        "algoritmoSeleccionado",
+        "tiempoEstimadoMs",
+        "operacionesEstimadas",
+        "complejidadTemporal",
+        "justificacion"
+    ]
+}
