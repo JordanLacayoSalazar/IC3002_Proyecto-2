@@ -1,0 +1,121 @@
+.subpanel-configuracion {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    border: transparent;
+    border-radius: 28px;
+    padding: 16px;
+}
+
+.campo-formulario {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.campo-formulario label,
+.campo-formulario .subheading,
+.etiqueta-campo {
+    color: var(--texto-color-primario);
+    font-weight: 600;
+}
+
+.campo-numerico {
+    display: grid;
+    grid-template-columns: 42px minmax(0, 1fr) 42px;
+    gap: 6px;
+    align-items: center;
+    margin-top: 8px;
+}
+
+.campo-numerico input[type="number"]::-webkit-outer-spin-button,
+.campo-numerico input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+}
+
+.boton-incremento {
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    background: var(--acento-color-secundario);
+    color: var(--texto-color-primario);
+    border: transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1rem;
+    line-height: 1;
+}
+
+.boton-incremento:hover:not(:disabled) {
+    background: var(--acento-color-primario);
+}
+
+.boton-incremento:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+}
+
+select,
+input[type="number"],
+input[type="range"] {
+    width: 100%;
+    border: transparent;
+    border-radius: 14px;
+    padding: 12px 14px;
+    background: rgba(24, 33, 48, 0.95);
+    color: var(--texto-color-primario);
+}
+
+.campo-numerico input[type="number"] {
+    min-width: 0;
+}
+
+input:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
+select option {
+    background: #111720;
+    color: var(--texto-color-primario);
+}
+
+.selector-prioridad {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.boton-prioridad {
+    flex: 1;
+    padding: 12px 18px;
+    border-radius: 999px;
+    background: rgba(35, 46, 28, 0.96);
+    color: var(--texto-color-primario);
+    border: 1px solid transparent;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.boton-prioridad.activo {
+    background: var(--acento-color-primario);
+    border-color: var(--acento-color-primario);
+}
+
+.boton-prioridad:hover {
+    background: #314800;
+}
+
+.boton-prioridad.activo:hover {
+    background: #576e09;
+}
+
+.campo-deshabilitado {
+    opacity: 0.68;
+}
+
+.icono-apartado {
+    margin-right: 6px;
+}

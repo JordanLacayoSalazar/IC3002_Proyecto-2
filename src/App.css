@@ -1,0 +1,83 @@
+/* Se crean las variables "globales" para usar en los demás archivos css. */
+:root {
+    --fondo-bienvenida: linear-gradient(to bottom right,
+            #07090e 0%,
+            #0d131d 45%,
+            #003e0c 65%,
+            #649700 85%,
+            #ffff00 100%);
+    --fondo-principal: linear-gradient(to bottom right,
+            #8d8d00 0%,
+            #344f00 15%,
+            #003e0c 35%,
+            #0d131d 55%,
+            #07090e 100%);
+    --fondo-chat: linear-gradient(to top right, #0a0d13, #1b2335);
+    --texto-color-primario: #ffffff;
+    --texto-color-secundario: #bbf870;
+    --acento-color-primario: #7fa30b;
+    --acento-color-secundario: #576e09;
+    --fuentes-parrafo: "Segoe UI", sans-serif;
+    --fuentes-titulo: "Orbitron", sans-serif;
+    font-family: var(--fuentes-parrafo);
+    font-size: 18px;
+    color: var(--texto-color-primario);
+}
+
+.vista-transicion {
+    min-height: 100svh;
+}
+
+/* Se definen estilos generales para ciertos elementos HTML. */
+body {
+    margin: 0;
+    background: #0d131d;
+}
+
+* {
+    box-sizing: border-box;
+    scrollbar-color: rgba(255, 255, 255, 0.2) rgb(12, 19, 28);
+}
+
+h1, h2 {
+    font-family: var(--fuentes-titulo);
+    font-weight: 900;
+}
+
+h3 {
+    font-family: var(--fuentes-parrafo);
+    margin-bottom: 2px;
+}
+
+button {
+    font: inherit;
+    cursor: pointer;
+    border: none;
+    font-family: var(--fuentes-parrafo);
+}
+
+input[type="range"] {
+    appearance: none;
+    cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+    height: 8px;
+    background: #adad00;
+    border-radius: 8px;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    background: #ffff00;
+    border-radius: 50%;
+    margin-top: -4px;
+}
+
+/* Animación de rotación para los íconos de carga */
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}

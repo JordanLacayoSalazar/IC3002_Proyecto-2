@@ -1,0 +1,32 @@
+{
+    "type": "object",
+    "properties": {
+        "algoritmo": {
+            "type": "string",
+            "description": "Algoritmo a usar: 'backtracking', 'dinamica' o 'greedy'.",
+            "enum": ["backtracking", "dinamica", "greedy"]
+        },
+        "capacidad": {
+            "type": "integer",
+            "description": "Capacidad máxima de la mochila."
+        },
+        "tiempoLimite": {
+            "type": "number",
+            "description": "Tiempo máximo en segundos para la ejecución del algoritmo (0 = sin limite)."
+        },
+        "objetos": {
+            "type": "array",
+            "description": "Lista de objetos disponibles.",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "id": { "type": "integer" },
+                    "valor": { "type": "integer" },
+                    "peso": { "type": "integer" }
+                },
+                "required": ["id", "valor", "peso"]
+            }
+        }
+    },
+    "required": ["algoritmo", "capacidad", "objetos"]
+}

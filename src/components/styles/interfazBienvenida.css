@@ -1,0 +1,107 @@
+.interfaz-bienvenida {
+    display: grid;
+    place-items: center;
+    padding: 48px 24px;
+    min-height: 100svh;
+    background: var(--fondo-bienvenida);
+}
+
+.panel-bienvenida {
+    width: min(720px, 100%);
+    background: linear-gradient(180deg, rgba(18, 26, 39, 0.98), rgba(13, 18, 29, 0.98));
+    border: transparent;
+    box-shadow: 0 28px 80px rgba(0, 0, 0, 0.55);
+    border-radius: 36px;
+    padding: 56px 48px;
+    text-align: center;
+    color: var(--texto-color-primario);
+}
+
+.info-curso {
+    display: inline-flex;
+    padding: 10px 125px;
+    border-radius: 999px;
+    background: rgba(96, 180, 0, 0.18);
+    color: var(--texto-color-primario);
+    font-family: var(--fuentes-titulo);
+    font-weight: 600;
+}
+
+.nombres-integrantes {
+    font-family: var(--fuentes-titulo);
+    color: var(--texto-color-secundario);
+}
+
+.campo-api-key {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: min(420px, 100%);
+    margin: 28px auto 0;
+    color: var(--texto-color-secundario);
+    font-weight: 400;
+    text-align: left;
+}
+
+.control-api-key {
+    position: relative;
+}
+
+.campo-api-key input {
+    width: 100%;
+    border: 1px solid rgba(187, 248, 112, 0.18);
+    border-radius: 14px;
+    padding: 14px 52px 14px 16px;
+    background: rgba(10, 15, 24, 0.82);
+    color: var(--texto-color-primario);
+    font: inherit;
+}
+
+.campo-api-key input::placeholder {
+    color: rgba(255, 255, 255, 0.46);
+}
+
+.boton-visibilidad-api {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--texto-color-secundario);
+    transform: translateY(-50%);
+}
+
+.boton-visibilidad-api:hover {
+    background: rgba(187, 248, 112, 0.12);
+}
+
+.boton-comenzar {
+    display: inline-flex;
+    margin: 28px auto 0;
+    padding: 18px 34px;
+    background: var(--acento-color-secundario);
+    color: #f5f9dc;
+    font-weight: 700;
+    border-radius: 999px;
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.4);
+}
+
+.boton-comenzar:hover:not(:disabled) {
+    background: var(--acento-color-primario);
+}
+
+.boton-comenzar:disabled {
+    background: rgba(119, 160, 74, 0.45);
+    color: rgba(245, 249, 220, 0.65);
+    box-shadow: none;
+    cursor: not-allowed;
+    opacity: 0.75;
+}
+
+.animacion-spin {
+    animation: spin 1s linear infinite;
+}
