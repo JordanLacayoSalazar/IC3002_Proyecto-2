@@ -1,4 +1,5 @@
 import { eliminarObjetosNoValidos, procesarObjetosPesoCero } from "../utils.js"
+import { Objeto } from "../types.js"
 
 /*
  * Ordena los objetos por densidad de valor y ejecuta la lógica Greedy para
@@ -78,17 +79,16 @@ function greedyLoop(listaObjetos, capacidad, temporizador, inicio, resultado) {
     } else {
         // Mochila fraccionaria. Se toma solo la parte que cabe en la mochila
         if (espacioDisponible > 0) {
-            // Se fracciona el valor y se toma solo el peso que cabe
-            // Se crean dinámicamente los atributos pesoOriginal y valorOriginal para respaldar los datos antes del cambio
-            objetoActual.pesoOriginal = objetoActual.peso
-            objetoActual.valorOriginal = objetoActual.valor
-            objetoActual.setValor((espacioDisponible / objetoActual.peso) * objetoActual.valor)
-            objetoActual.setPeso(espacioDisponible)
-            objetoActual.setFraccionado(true)
+            // Se crea una copia fraccionada sin modificar el objeto original.
+            const valorFraccionado = (espacioDisponible / objetoActual.peso) * objetoActual.valor
+            const objetoFraccionado = new Objeto(objetoActual.id, valorFraccionado, espacioDisponible)
+            objetoFraccionado.pesoOriginal = objetoActual.peso
+            objetoFraccionado.valorOriginal = objetoActual.valor
+            objetoFraccionado.setFraccionado(true)
 
-            resultado.valor += objetoActual.valor
-            resultado.peso += objetoActual.peso
-            resultado.objetos.push(objetoActual)
+            resultado.valor += objetoFraccionado.valor
+            resultado.peso += objetoFraccionado.peso
+            resultado.objetos.push(objetoFraccionado)
         }
         return resultado
     }
