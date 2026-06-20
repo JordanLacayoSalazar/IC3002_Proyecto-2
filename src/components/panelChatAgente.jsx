@@ -1,12 +1,22 @@
-import React, { useEffect, useRef, useState } from "react"
-import { SendHorizontal } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
+import { SendHorizontal, Loader2 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
-import "./styles/panelChatAgente.css"
 import { Mensaje } from "../types.js"
-import { GoogleGenerativeAI, FunctionCallingMode, SchemaType } from "@google/generative-ai"
+import { obtenerNombreAlgoritmo } from "../utils.js"
 import { mochilaBactracking } from "./backtracking.js"
 import { mochilaDinamica } from "./dinamica.js"
 import { mochilaGreedy } from "./greedy.js"
+import {
+    MODELO_GEMINI_IA,
+    PRIORIDAD_EXACTITUD,
+    PRIORIDAD_VELOCIDAD,
+} from "../constants.js"
+import parametrosAgenteSchema from "./parametrosAgenteSchema.json"
+import respuestaAgenteSchema from "./respuestaAgenteSchema.json"
+import "./styles/panelChatAgente.css"
+
+// El prompt principal define las reglas de selección y el formato de respuesta del agente.
+import promptPrincipal from "./promptPrincipal.txt?raw"
 
 /*
  * Renderiza un componente de burbuja de chat basado en el autor del mensaje.
@@ -20,12 +30,32 @@ function renderizarMensaje(msg, idx) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: idx * 0.05 }}
+            style={{ whiteSpace: "pre-wrap" }}
         >
             {msg.texto}
         </motion.div>
     )
 }
 
+// Renderiza un mensaje de estado temporal con un ícono de carga.
+function renderizarEstado(texto) {
+    if (!texto) return null
+
+    return (
+        <motion.div
+            className="burbuja-chat status"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+        >
+            <Loader2 size={16} className="animacion-spin" style={{ marginRight: "8px", flexShrink: 0 }} />
+            {texto}
+        </motion.div>
+    )
+}
+
+// Crea el contenido que se envía a Gemini como mensaje del usuario.
 function crearContenidoUsuario(texto) {
     return {
         role: "user",
@@ -33,6 +63,7 @@ function crearContenidoUsuario(texto) {
     }
 }
 
+// Define la herramienta que Gemini puede invocar para ejecutar un algoritmo local.
 function obtenerHerramientas() {
     return [
         {
@@ -41,43 +72,84 @@ function obtenerHerramientas() {
                     name: "resolver_mochila",
                     description:
                         "Resuelve el problema de la mochila usando backtracking, dinamica o greedy y devuelve el resultado en JSON.",
-                    parameters: {
-                        type: SchemaType.OBJECT,
-                        properties: {
-                            algoritmo: {
-                                type: SchemaType.STRING,
-                                description: "Algoritmo a usar: backtracking, dinamica o greedy.",
-                            },
-                            capacidad: {
-                                type: SchemaType.INTEGER,
-                                description: "Capacidad maxima de la mochila.",
-                            },
-                            tiempoLimite: {
-                                type: SchemaType.NUMBER,
-                                description: "Tiempo maximo en segundos para la ejecucion del algoritmo (0 = sin limite).",
-                            },
-                            objetos: {
-                                type: SchemaType.ARRAY,
-                                description: "Lista de objetos disponibles.",
-                                items: {
-                                    type: SchemaType.OBJECT,
-                                    properties: {
-                                        id: { type: SchemaType.INTEGER },
-                                        valor: { type: SchemaType.INTEGER },
-                                        peso: { type: SchemaType.INTEGER },
-                                    },
-                                    required: ["id", "valor", "peso"],
-                                },
-                            },
-                        },
-                        required: ["algoritmo", "capacidad", "objetos"],
-                    },
+                    parameters: parametrosAgenteSchema,
                 },
             ],
         },
     ]
 }
 
+// Aplica el esquema que obliga al agente a responder con un JSON válido.
+function obtenerConfiguracionJson() {
+    return {
+        responseMimeType: "application/json",
+        responseSchema: respuestaAgenteSchema,
+    }
+}
+
+/*
+ * Intenta convertir el texto devuelto por Gemini en un objeto estructurado.
+ * Si Gemini incumple el formato, crea una respuesta segura para que React no falle.
+ */
+function parsearRespuestaEstructurada(textoRespuesta) {
+    try {
+        return JSON.parse(textoRespuesta)
+    } catch (error) {
+        console.error("La respuesta del agente no cumple el schema JSON esperado.", error)
+        return {
+            algoritmoSeleccionado: "invalido",
+            tiempoEstimadoMs: 0,
+            operacionesEstimadas: 0,
+            complejidadTemporal: "No disponible",
+            justificacion: textoRespuesta,
+        }
+    }
+}
+
+// Convierte el objeto JSON del agente en un mensaje natural para mostrar en el chat.
+function formatearRespuestaEstructurada(respuesta) {
+    if (respuesta.algoritmoSeleccionado === "invalido") {
+        return respuesta.justificacion
+    }
+
+    const lineas = [
+        `Seleccioné el algoritmo: ${obtenerNombreAlgoritmo(respuesta.algoritmoSeleccionado)}.`,
+        `Tiempo estimado: ${respuesta.tiempoEstimadoMs} ms`,
+        `Operaciones estimadas: ${respuesta.operacionesEstimadas}`,
+        `Complejidad temporal: ${respuesta.complejidadTemporal}`,
+        "",
+        `Justificación: ${respuesta.justificacion}`,
+    ]
+
+    return lineas.join("\n")
+}
+
+// Crea una respuesta determinista cuando el problema no requiere ejecutar un algoritmo.
+function crearRespuestaSinSolucion(objetos) {
+    const sinObjetos = objetos.length === 0
+
+    return {
+        algoritmoSeleccionado: "ninguno",
+        tiempoEstimadoMs: 0,
+        operacionesEstimadas: 0,
+        complejidadTemporal: "O(1)",
+        justificacion: sinObjetos
+            ? "No existen objetos para incluir en la mochila."
+            : "La capacidad de la mochila es cero, por lo tanto no es posible incluir ningún objeto.",
+    }
+}
+
+// Convierte el valor interno de prioridad al texto utilizado por las reglas del agente.
+function obtenerNombrePrioridad(prioridad) {
+    if (prioridad === PRIORIDAD_EXACTITUD) return "Máxima Exactitud"
+    if (prioridad === PRIORIDAD_VELOCIDAD) return "Velocidad Máxima"
+    return prioridad
+}
+
+/*
+ * Ejecuta localmente el algoritmo solicitado por Gemini.
+ * Recibe el nombre de la función, sus argumentos y los datos actuales de la interfaz.
+ */
 function ejecutarFuncionLocal(nombre, args, objetosActuales, capacidadActual, tiempoLimiteActual) {
     if (nombre !== "resolver_mochila") {
         return {
@@ -90,7 +162,7 @@ function ejecutarFuncionLocal(nombre, args, objetosActuales, capacidadActual, ti
     const tiempoLimite = Number(args?.tiempoLimite ?? tiempoLimiteActual)
     const objetos = Array.isArray(args?.objetos) ? args.objetos : objetosActuales
 
-    let resultado = { valor: 0, peso: 0, objetos: [] }
+    let resultado
 
     if (algoritmo.includes("back")) {
         resultado = mochilaBactracking(objetos, capacidad, tiempoLimite)
@@ -114,121 +186,183 @@ function ejecutarFuncionLocal(nombre, args, objetosActuales, capacidadActual, ti
 }
 
 // Implementa la ventana de chat para la interacción con el Agente de IA.
-export default function PanelChatAgente({ apiKey, objetos, capacidad, tiempoLimite, mochila, setMochila}) {
+export default function PanelChatAgente({ genAI, objetos, capacidad, prioridad, tiempoLimite, setMochila, setAlgoritmo, setEstadisticas}) {
     const [entrada, setEntrada] = useState("")
     const [mensajes, setMensajes] = useState([
         new Mensaje(0, "bot", "El agente está listo para recibir tu mensaje."),
     ])
     const contenedorRef = useRef(null)
-    const genAIRef = useRef(null)
+    const [estado, setEstado] = useState(null)
     const modeloAiRef = useRef(null)
-    const prompPrincipal =
-        'Solo responde al texto que comienza despues de "Query=>" y solo despues de eso. La respuesta debe estar basada tambien en la mejor forma de solucionar el problema de la mochila planteado seleccionando uno de estos metodos: backtracking, dinamico y greedy. Debe incluir el tiempo esperado para la solucion en la respuesta.'
 
+    // Inicializa el modelo de Gemini cuando existe una API Key configurada.
     useEffect(() => {
-        if (apiKey && apiKey.trim() !== "") {
-            genAIRef.current = new GoogleGenerativeAI(apiKey)
-            modeloAiRef.current = genAIRef.current.getGenerativeModel({
-                model: "gemini-2.0-flash",
+        if (genAI) {
+            modeloAiRef.current = genAI.getGenerativeModel({
+                model: MODELO_GEMINI_IA
             })
         }
-    }, [apiKey])
+    }, [genAI])
 
+    // Mantiene el scroll del chat al final cada vez que aparece un mensaje nuevo.
     useEffect(() => {
         if (contenedorRef.current) {
             contenedorRef.current.scrollTop = contenedorRef.current.scrollHeight
         }
     }, [mensajes])
 
-    async function enviarMensaje() {
-        if (entrada.trim() === "") return
-
-        const mensajeUsuario = new Mensaje(mensajes.length, "usuario", entrada)
-        setMensajes((prev) => [...prev, mensajeUsuario])
-
-        if (!modeloAiRef.current) {
-            console.error("Modelo AI no inicializado")
-            setEntrada("")
-            return
-        }
-
-        const prompt = `Query=> ${entrada}`
-        const request = {
-            contents: [crearContenidoUsuario(prompt)],
+    // Combina la consulta, las herramientas disponibles y las instrucciones del prompt principal.
+    function prepararPeticion(promptInput) {
+        return {
+            contents: [crearContenidoUsuario(promptInput)],
             tools: obtenerHerramientas(),
             toolConfig: {
-                functionCallingConfig: {
-                    mode: FunctionCallingMode.AUTO,
-                },
+                functionCallingConfig: { mode: "AUTO" },
             },
-            systemInstruction: prompPrincipal,
+            systemInstruction: promptPrincipal,
         }
+    }
+
+    // Procesa las llamadas a funciones devueltas por la IA y actualiza el estado de la aplicación.
+    async function procesarLlamadas(llamadas, promptOriginal) {
+        if (objetos.length === 0 || capacidad === 0) {
+            setAlgoritmo("ninguno")
+            setMochila(null)
+            setEstadisticas({
+                tiempoRealMs: 0,
+                operacionesReales: 0,
+                objetosTotales: 0,
+                tiempoEstimadoMs: 0,
+                operacionesEstimadas: 0,
+                tiemposFases: {},
+            })
+            return crearRespuestaSinSolucion(objetos)
+        }
+
+        setEstado("Ejecutando algoritmo local...")
+        const llamada = llamadas[0]
+        const resultadoFuncion = ejecutarFuncionLocal(
+            llamada.name,
+            llamada.args,
+            objetos,
+            capacidad,
+            tiempoLimite
+        )
+        setEstado("Calculando estadísticas...")
+
+        setAlgoritmo(resultadoFuncion.algoritmo)
+        setMochila({
+            valor: resultadoFuncion.resultado.valor,
+            peso: resultadoFuncion.resultado.peso,
+            contenido: resultadoFuncion.resultado.objetos,
+            operaciones: resultadoFuncion.resultado.operaciones
+        })
+
+        setEstadisticas({
+            tiempoRealMs: resultadoFuncion.resultado.tiempoMs,
+            operacionesReales: resultadoFuncion.resultado.operaciones,
+            objetosTotales: objetos.length,
+            tiempoEstimadoMs: 0,
+            operacionesEstimadas: 0,
+            tiemposFases: resultadoFuncion.resultado.tiemposFases || {},
+        })
+
+        setEstado("Generando respuesta...")
+        const requestSeguimiento = {
+            contents: [
+                crearContenidoUsuario(
+                    `${promptOriginal}\n\nResultado local de resolver_mochila:\n${JSON.stringify(resultadoFuncion)}`
+                ),
+            ],
+            systemInstruction: promptPrincipal,
+            generationConfig: obtenerConfiguracionJson(),
+        }
+
+        const followUpResult = await modeloAiRef.current.generateContent(requestSeguimiento)
+        return parsearRespuestaEstructurada(followUpResult.response.text())
+    }
+
+    // Envía el mensaje del usuario, gestiona la comunicación con Gemini y actualiza el chat.
+    async function enviarMensaje() {
+        if (entrada.trim() === "" || !modeloAiRef.current || estado !== null) return
+
+        setEstado("Analizando mensaje de usuario...")
+        const mensajeUsuario = new Mensaje(mensajes.length, "usuario", entrada)
+        setMensajes((prev) => [...prev, mensajeUsuario])
+        setEstado("Analizando los datos del problema...")
+        const nombrePrioridad = obtenerNombrePrioridad(prioridad)
+        // Incluye los datos que el prompt utiliza para seleccionar el algoritmo.
+        const prompt = `
+            N=${objetos.length}, W=${capacidad}, Prioridad="${nombrePrioridad}", Tiempo Límite=${tiempoLimite}s.
+            Objetos: ${JSON.stringify(objetos.map(o => ({v: o.valor, w: o.peso})))}
+            Query=> ${entrada}
+        `
+        const request = prepararPeticion(prompt)
+        setEntrada("")
 
         try {
-            const resultadoPromp = await modeloAiRef.current.generateContent(request)
-            const respuesta = await resultadoPromp.response
+            setEstado("Pensando...")
+            const resultadoPrompt = await modeloAiRef.current.generateContent(request)
+            const respuesta = await resultadoPrompt.response
             const llamadas = respuesta.functionCalls?.()
+            let respuestaEstructurada = null
 
             if (llamadas && llamadas.length > 0) {
-                const llamada = llamadas[0]
-                const resultadoFuncion = ejecutarFuncionLocal(
-                    llamada.name,
-                    llamada.args,
-                    objetos,
-                    capacidad,
-                    tiempoLimite
-                )
-
-                setMochila({
-                    valor: resultadoFuncion.resultado.valor,
-                    peso: resultadoFuncion.resultado.peso,
-                    contenido: resultadoFuncion.resultado.objetos
-                })
-
-                const functionResponsePart = {
-                    role: "function",
-                    parts: [
-                        {
-                            functionResponse: {
-                                name: llamada.name,
-                                response: resultadoFuncion,
-                            },
-                        },
-                    ],
-                }
-
-                const followUpRequest = {
-                    contents: [crearContenidoUsuario(prompt), functionResponsePart],
-                    tools: obtenerHerramientas(),
-                    toolConfig: {
-                        functionCallingConfig: {
-                            mode: FunctionCallingMode.AUTO,
-                        },
-                    },
-                    systemInstruction: prompPrincipal,
-                }
-
-                const followUpResult = await modeloAiRef.current.generateContent(followUpRequest)
-                const followUpResponse = await followUpResult.response
-                const textoFinal = followUpResponse.text()
-                const mensajeBot = new Mensaje(mensajes.length + 1, "bot", textoFinal)
-                setMensajes((prev) => [...prev, mensajeBot])
+                respuestaEstructurada = await procesarLlamadas(llamadas, prompt)
             } else {
-                const textoResp = respuesta.text()
-                const mensajeBot = new Mensaje(mensajes.length + 1, "bot", textoResp)
-                setMensajes((prev) => [...prev, mensajeBot])
-            }
-        } catch (err) {
-            console.error("No se ha obtenido una respuesta de la ia", err)
-            const mensajeError = new Mensaje(
-                mensajes.length + 1,
-                "bot",
-                "Ha ocurrido un error al procesar la solicitud de la IA."
-            )
-            setMensajes((prev) => [...prev, mensajeError])
-        }
+                const respuestaJson = parsearRespuestaEstructurada(respuesta.text())
 
-        setEntrada("")
+                if (
+                    respuestaJson.algoritmoSeleccionado === "invalido"
+                    || respuestaJson.algoritmoSeleccionado === "ninguno"
+                ) {
+                    respuestaEstructurada = respuestaJson
+                    if (respuestaJson.algoritmoSeleccionado === "ninguno") {
+                        setAlgoritmo("ninguno")
+                        setMochila(null)
+                        setEstadisticas({
+                            tiempoRealMs: 0,
+                            operacionesReales: 0,
+                            objetosTotales: 0,
+                            tiempoEstimadoMs: respuestaJson.tiempoEstimadoMs,
+                            operacionesEstimadas: 0,
+                            tiemposFases: {},
+                        })
+                    }
+                } else {
+                    respuestaEstructurada = await procesarLlamadas([{
+                        name: "resolver_mochila",
+                        args: {
+                            algoritmo: respuestaJson.algoritmoSeleccionado,
+                            capacidad,
+                            objetos,
+                            tiempoLimite,
+                        },
+                    }], prompt)
+                }
+            }
+
+            setEstado("Análisis completado.")
+            const textoBot = formatearRespuestaEstructurada(respuestaEstructurada)
+            setEstadisticas(prev => ({
+                ...prev,
+                tiempoEstimadoMs: respuestaEstructurada.tiempoEstimadoMs,
+                operacionesEstimadas: respuestaEstructurada.operacionesEstimadas,
+            }))
+            setTimeout(() => setEstado(null), 500) // Limpia el estado después de un momento
+            setMensajes((prev) => [...prev, new Mensaje(prev.length, "bot", textoBot)])
+        } catch (error) {
+            if (error.message.includes("429")) {
+                setMensajes((prev) => [...prev, new Mensaje(prev.length, "bot", "Error al procesar la solicitud: Se ha alcanzado el límite de solicitudes de la API.")])
+            }
+            else if (error.message.includes("503")) {
+                setMensajes((prev) => [...prev, new Mensaje(prev.length, "bot", "Error al procesar la solicitud: El modelo de Google Gemini está experimentando una alta demanda. Intente de nuevo en unos minutos.")])
+            }
+            else {
+                setMensajes((prev) => [...prev, new Mensaje(prev.length, "bot", "Error desconocido al procesar la solicitud.")])
+            }
+            setEstado(null)
+        }
     }
 
     //Gestiona el evento de presionar una tecla en el campo de entrada.
@@ -249,24 +383,27 @@ export default function PanelChatAgente({ apiKey, objetos, capacidad, tiempoLimi
             <div className="contenedor-chat" ref={contenedorRef}>
                 <AnimatePresence>
                     {mensajes.map(renderizarMensaje)}
+                    {renderizarEstado(estado)}
                 </AnimatePresence>
                 <div className="area-mensaje">
                     <input
-                        className="entrada-mensaje"
-                        placeholder="Escribir mensaje..."
-                        value={entrada}
-                        onChange={manejarCambioEntrada}
-                        onKeyDown={manejarTeclaPresionada}
-                    />
-                    <motion.button
-                        className="boton-enviar"
-                        onClick={enviarMensaje}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                    >
-                        <SendHorizontal size={20} style={{ marginRight: "5px" }} />
-                        Enviar
-                    </motion.button>
+                         className="entrada-mensaje"
+                         placeholder="Escribir mensaje..."
+                         value={entrada}
+                         onChange={manejarCambioEntrada}
+                         onKeyDown={manejarTeclaPresionada}
+                         disabled={estado !== null}
+                     />
+                     <motion.button
+                         className="boton-enviar"
+                         onClick={enviarMensaje}
+                         disabled={estado !== null}
+                         whileHover={estado === null ? { scale: 1.05 } : {}}
+                         whileTap={estado === null ? { scale: 0.95 } : {}}
+                     >
+                         <SendHorizontal size={20} className="icono-apartado" />
+                         Enviar
+                     </motion.button>
                 </div>
             </div>
         </main>

@@ -20,3 +20,25 @@
     color: rgba(196, 213, 142, 0.85);
     font-size: 0.95rem;
 }
+
+.texto-estadistica-vacio {
+    min-height: 100px;
+    margin-top: 12px;
+    border-radius: 20px;
+    background: rgba(35, 46, 64, 0.7);
+    display: grid;
+    place-items: center;
+    color: rgba(196, 213, 142, 0.85);
+    font-size: 0.95rem;
+}
+
+.contenedor-grafico-rendimiento {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 12px;
+}
+
+.icono-apartado {
+    margin-right: 6px;
+}

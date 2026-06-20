@@ -1,27 +1,45 @@
-import '../types.js'
+import { eliminarObjetosNoValidos, procesarObjetosPesoCero } from "../utils.js"
 
+/*
+ * Prepara la lista de objetos y hace una búsqueda recursiva por backtracking 
+ * para encontrar la combinación que maximice el valor dentro de la capacidad.
+ */
 export function mochilaBactracking(listaObjetos, capacidad, tiempoAceptable) {
-    listaObjetos = eliminarObjetosNoValidos(listaObjetos, capacidad)
     let resultado = {
         valor: 0,
         peso: 0,
-        objetos: []
+        objetos: [],
+        operaciones: 0,
+        tiempoMs: 0,
+        tiemposFases: {
+            tiempoFiltradoObjetos: 0,
+            tiempoBusquedaRecursiva: 0
+        }
     }
     const inicio = performance.now()
-    return backtrackingRecursion(listaObjetos, capacidad, [1], { valor: 0, peso: 0, objetos: [] }, resultado, tiempoAceptable*1000, inicio)
-}
+    
+    if (listaObjetos.length > 0 && capacidad > 0) {
+        const inicioFiltrado = performance.now()
+        listaObjetos = eliminarObjetosNoValidos(listaObjetos, capacidad)
+        listaObjetos = procesarObjetosPesoCero(listaObjetos, resultado)
+        resultado.tiemposFases.tiempoFiltradoObjetos = performance.now() - inicioFiltrado
 
-function eliminarObjetosNoValidos(listaObjetos, capacidad) {
-    let nuevaLista = []
-    for (let i = 0; i < listaObjetos.length; i++){
-        if (listaObjetos[i].valor == 0) continue
-        if (listaObjetos[i].peso > capacidad) continue
-        nuevaLista.push(listaObjetos[i])
+        const inicioBusqueda = performance.now()
+        backtrackingRecursion(listaObjetos, capacidad, [1], { valor: 0, peso: 0, objetos: [] }, resultado, tiempoAceptable*1000, inicio)
+        resultado.tiemposFases.tiempoBusquedaRecursiva = performance.now() - inicioBusqueda
     }
-    return nuevaLista
+    
+    resultado.tiempoMs = performance.now() - inicio
+    return resultado
 }
 
+/*
+ * Explora el espacio de búsqueda de forma recursiva, gestionando la inclusión
+ * de objetos y verificando constantemente si se ha agotado el tiempo límite.
+ */
 function backtrackingRecursion(listaObjetos, capacidad, listaIndice, mochilaActual, resultado, temporizador, inicio) {
+    resultado.operaciones++
+
     //Verifica si el tiempo aceptable ha sido alcanzado
     if (temporizador <= performance.now() - inicio && temporizador > 0){
         if (resultado.valor < mochilaActual.valor) {

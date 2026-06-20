@@ -1,63 +1,95 @@
-import '../types.js'
+import { eliminarObjetosNoValidos, procesarObjetosPesoCero } from "../utils.js"
 
+/*
+ * Ordena los objetos por densidad de valor y ejecuta la lógica Greedy para
+ * completar la mochila, permitiendo soluciones fraccionarias si es necesario.
+ */
 export function mochilaGreedy(listaObjetos, capacidad, tiempoAceptable){
-    listaObjetos = eliminarObjetosNoValidos(listaObjetos, capacidad)
-    let valorPeso = []
     let resultado = {
         valor: 0,
         peso: 0,
-        objetos: []
-    }
-    let nuevaLista = []
-    for (let i = 0; i < listaObjetos.length; i++){
-        const valorObj = listaObjetos[i].valor
-        const pesoObj = listaObjetos[i].peso
-        if (listaObjetos[i].peso == 0) {
-            resultado.valor += listaObjetos[i].valor
-            resultado.objetos.push(listaObjetos[i])
-            continue
+        objetos: [],
+        operaciones: 0,
+        tiempoMs: 0,
+        tiemposFases: {
+            tiempoFiltradoObjetos: 0,
+            tiempoOrdenamiento: 0,
+            tiempoBuclePrincipal: 0
         }
-        nuevaLista.push(listaObjetos[i])
-        valorPeso.push(valorObj / pesoObj)
     }
-    listaObjetos = nuevaLista
     const inicio = performance.now()
-    resultado = greedyLoop(listaObjetos, valorPeso, capacidad, tiempoAceptable*1000, inicio, resultado)
+    
+    if (listaObjetos.length > 0 && capacidad > 0) {
+        const inicioFiltrado = performance.now()
+        listaObjetos = eliminarObjetosNoValidos(listaObjetos, capacidad)
+        listaObjetos = procesarObjetosPesoCero(listaObjetos, resultado)
+        resultado.tiemposFases.tiempoFiltradoObjetos = performance.now() - inicioFiltrado
+
+        // Ordenar la lista de objetos según su densidad de valor (valor/peso) de mayor a menor
+        const inicioOrdenamiento = performance.now()
+        listaObjetos.sort(function (a, b) {
+            resultado.operaciones++
+            return compararValorPeso(a, b)
+        })
+        resultado.tiemposFases.tiempoOrdenamiento = performance.now() - inicioOrdenamiento
+
+        const inicioBucle = performance.now()
+        greedyLoop(listaObjetos, capacidad, tiempoAceptable*1000, inicio, resultado)
+        resultado.tiemposFases.tiempoBuclePrincipal = performance.now() - inicioBucle
+    }
+
+    resultado.tiempoMs = performance.now() - inicio
     return resultado
 }
 
-function eliminarObjetosNoValidos(listaObjetos, capacidad) {
-    let nuevaLista = []
-    for (let i = 0; i < listaObjetos.length; i++){
-        if (listaObjetos[i].valor == 0) continue
-        if (listaObjetos[i].peso > capacidad) continue
-        nuevaLista.push(listaObjetos[i])
-    }
-    return nuevaLista
+// Se resta B menos A para ordenar de mayor a menor
+function compararValorPeso(a, b) {
+    let densidadA = a.valor / a.peso
+    let densidadB = b.valor / b.peso
+    return densidadB - densidadA
 }
 
-function greedyLoop(listaObjetos, valorPeso, capacidad, temporizador, inicio, resultado) {
+/*
+ * Añade objetos a la mochila de forma recursiva según el orden de densidad.
+ * Si un objeto no cabe entero, toma la fracción necesaria para llenar el espacio.
+ */
+function greedyLoop(listaObjetos, capacidad, temporizador, inicio, resultado) {
+    resultado.operaciones++
+
     if (temporizador <= performance.now() - inicio && temporizador > 0){
         return resultado
     }
-    const largo = listaObjetos.length
-    if (largo == 0){
+
+    if (listaObjetos.length === 0) {
         return resultado
     }
-    let objetoMax = valorPeso[0]
-    let indiceObj = 0
-    for (let i = 1; i < largo; i++){
-        if (objetoMax < valorPeso[i]) {
-            objetoMax = valorPeso[i]
-            indiceObj = i
+
+    // Como la lista ya está ordenada, el objeto con mayor densidad es siempre el primero
+    const objetoActual = listaObjetos[0]
+    const espacioDisponible = capacidad - resultado.peso
+
+    if (objetoActual.peso <= espacioDisponible) {
+        // El objeto cabe completo
+        resultado.valor += objetoActual.valor
+        resultado.peso += objetoActual.peso
+        resultado.objetos.push(objetoActual)
+        listaObjetos.splice(0, 1)
+        return greedyLoop(listaObjetos, capacidad, temporizador, inicio, resultado)
+    } else {
+        // Mochila fraccionaria. Se toma solo la parte que cabe en la mochila
+        if (espacioDisponible > 0) {
+            // Se fracciona el valor y se toma solo el peso que cabe
+            // Se crean dinámicamente los atributos pesoOriginal y valorOriginal para respaldar los datos antes del cambio
+            objetoActual.pesoOriginal = objetoActual.peso
+            objetoActual.valorOriginal = objetoActual.valor
+            objetoActual.setValor((espacioDisponible / objetoActual.peso) * objetoActual.valor)
+            objetoActual.setPeso(espacioDisponible)
+            objetoActual.setFraccionado(true)
+
+            resultado.valor += objetoActual.valor
+            resultado.peso += objetoActual.peso
+            resultado.objetos.push(objetoActual)
         }
+        return resultado
     }
-    if (resultado.peso + listaObjetos[indiceObj].peso <= capacidad){
-        resultado.valor += listaObjetos[indiceObj].valor
-        resultado.peso += listaObjetos[indiceObj].peso
-        resultado.objetos.push(listaObjetos[indiceObj])
-    }
-    listaObjetos.splice(indiceObj, 1)
-    valorPeso.splice(indiceObj, 1)
-    return greedyLoop(listaObjetos, valorPeso, capacidad, temporizador, inicio, resultado)
 }

@@ -1,8 +1,6 @@
-import React from "react"
 import { Lightbulb } from "lucide-react"
 import {
-    ALGORITMOS,
-    PASO_NUMERICO,
+    PASO_DECIMAL_NUMERICO,
     PRIORIDAD_EXACTITUD,
     PRIORIDAD_VELOCIDAD,
     TIEMPO_LIMITE_MINIMO,
@@ -15,42 +13,18 @@ import "./styles/subpanelConfiguracion.css"
  * Recibe los estados de configuración global.
  */
 export default function SubPanelConfiguracion({
-    algoritmo,
-    setAlgoritmo,
     prioridad,
     setPrioridad,
     tiempoLimite,
     setTiempoLimite,
 }) {
 
-    //Crea las opciones para el selector de algoritmos.
-    function renderizarOpcionAlgoritmo(opcion) {
-        return (
-            <option key={opcion.value} value={opcion.value}>
-                {opcion.etiqueta}
-            </option>
-        )
-    }
-
-    //Gestiona el cambio de algoritmo seleccionado.
-    function manejarCambioAlgoritmo(event) {
-        setAlgoritmo(event.target.value)
-    }
-
     return (
         <aside className="subpanel-configuracion">
             <div className="titulo-panel">Configuración</div>
             <div className="descripcion-panel">
-                <Lightbulb size={18} style={{ marginRight: 6 }} />
-                Seleccione el algoritmo que resolverá el problema y 
-                configure las restricciones de negocio.
-            </div>
-
-            <div className="campo-formulario">
-                <label>Algoritmo</label>
-                <select value={algoritmo} onChange={manejarCambioAlgoritmo}>
-                    {ALGORITMOS.map(renderizarOpcionAlgoritmo)}
-                </select>
+                <Lightbulb size={18} className="icono-apartado" />
+                Configure las restricciones de negocio.
             </div>
 
             <div className="campo-formulario">
@@ -59,14 +33,14 @@ export default function SubPanelConfiguracion({
                     <button
                         type="button"
                         className={`boton-prioridad ${prioridad === PRIORIDAD_EXACTITUD ? "activo" : ""}`}
-                        onClick={setPrioridad(PRIORIDAD_EXACTITUD)}
+                        onClick={() => setPrioridad(PRIORIDAD_EXACTITUD)}
                     >
                         Máxima Exactitud
                     </button>
                     <button
                         type="button"
                         className={`boton-prioridad ${prioridad === PRIORIDAD_VELOCIDAD ? "activo" : ""}`}
-                        onClick={setPrioridad(PRIORIDAD_VELOCIDAD)}
+                        onClick={() => setPrioridad(PRIORIDAD_VELOCIDAD)}
                     >
                         Velocidad Máxima
                     </button>
@@ -76,8 +50,7 @@ export default function SubPanelConfiguracion({
                     valor={tiempoLimite}
                     onChange={setTiempoLimite}
                     min={TIEMPO_LIMITE_MINIMO}
-                    paso={PASO_NUMERICO}
-                    disabled={prioridad !== PRIORIDAD_VELOCIDAD}
+                    paso={PASO_DECIMAL_NUMERICO}
                 />
             </div>
 
